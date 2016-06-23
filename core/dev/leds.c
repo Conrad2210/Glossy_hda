@@ -28,6 +28,7 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * @(#)$Id: leds.c,v 1.7 2009/02/24 21:30:20 adamdunkels Exp $
  */
 
 #include "dev/leds.h"
@@ -119,4 +120,8 @@ leds_invert(unsigned char ledv) {
   invert = invert ^ ledv;
   show_leds(ledv);
 }
+/*---------------------------------------------------------------------------*/
+void leds_green(int o) { o?leds_on(LEDS_GREEN):leds_off(LEDS_GREEN); }
+void leds_yellow(int o) { o?leds_on(LEDS_YELLOW):leds_off(LEDS_YELLOW); }
+void leds_red(int o) { o?leds_on(LEDS_RED):leds_off(LEDS_RED); }
 /*---------------------------------------------------------------------------*/

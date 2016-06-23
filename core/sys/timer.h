@@ -69,6 +69,7 @@
  *
  * Author: Adam Dunkels <adam@sics.se>
  *
+ * $Id: timer.h,v 1.2 2008/09/21 08:58:05 adamdunkels Exp $
  */
 #ifndef __TIMER_H__
 #define __TIMER_H__
@@ -88,10 +89,10 @@ struct timer {
   clock_time_t interval;
 };
 
-CCIF void timer_set(struct timer *t, clock_time_t interval);
+void timer_set(struct timer *t, clock_time_t interval);
 void timer_reset(struct timer *t);
 void timer_restart(struct timer *t);
-CCIF int timer_expired(struct timer *t);
+int timer_expired(struct timer *t);
 clock_time_t timer_remaining(struct timer *t);
 
 

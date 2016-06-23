@@ -28,6 +28,7 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * @(#)$Id: loader-arch.c,v 1.1 2006/06/17 22:41:21 adamdunkels Exp $
  */
 
 #include "contiki.h"
@@ -67,13 +68,13 @@ loader_arch_load(unsigned short startaddr)
   /* Read the magic word and version number from the first four bytes
      in EEPROM. */
   eeprom_read(startaddr, (char *)&tmp, 2);
-  if(tmp != UIP_HTONS(LOADER_ARCH_MAGIC)) {
+  if(tmp != HTONS(LOADER_ARCH_MAGIC)) {
     beep_beep(60000);
     return;
   }
 
   eeprom_read(startaddr + 2, (char *)&tmp, 2);
-  if(tmp != UIP_HTONS(LOADER_ARCH_VERSION)) {
+  if(tmp != HTONS(LOADER_ARCH_VERSION)) {
     return;
   }
 
@@ -82,7 +83,7 @@ loader_arch_load(unsigned short startaddr)
   /* Read the total lenghth that the checksum covers. */
   eeprom_read(startaddr, (char *)&sumlen, 2);
   
-  sumlen = uip_htons(sumlen);
+  sumlen = htons(sumlen);
   
   sum = 0;
 
@@ -110,7 +111,7 @@ loader_arch_load(unsigned short startaddr)
   /* If the checksum was wrong, we beep. The number of beeps indicate
      the numerival value of the calculated checksum. */
   if(sum != 0xff) {
-    leds_on(LEDS_RED);
+    leds_red(LEDS_ON);
     
     for(i = 0; i < (sum >> 4); ++i) {
       beep_beep(200);
@@ -130,29 +131,29 @@ loader_arch_load(unsigned short startaddr)
       }
     }
 
-    leds_off(LEDS_RED);
+    leds_red(LEDS_OFF);
     
     return;
     
   } else {
-    leds_on(LEDS_GREEN);
+    leds_green(LEDS_ON);
     for(i = 0; i < 4; ++i) {
       beep_beep(200);
       for(j = 0; j < 2; ++j) {
 	clock_delay(60000);
       }
     }
-    leds_off(LEDS_GREEN);
+    leds_green(LEDS_OFF);
   }
 
 
-  leds_on(LEDS_YELLOW);
+  leds_yellow(LEDS_ON);
   startaddr += 2;
   
   /* Read the size of the code segment from the next two bytes in EEPROM. */
   eeprom_read(startaddr, (char *)&codelen, 2);
   /* Convert from network byte order to host byte order. */
-  codelen = uip_htons(codelen);
+  codelen = htons(codelen);
   
 
   /* Flash program code into ROM. We use the available space in the
@@ -184,15 +185,15 @@ loader_arch_load(unsigned short startaddr)
 
   flash_done();
 
-  leds_off(LEDS_YELLOW);
+  leds_yellow(LEDS_OFF);
 
-  leds_on(LEDS_GREEN);
+  leds_green(LEDS_ON);
   
   /* Read the size of the code segment from the first two bytes in EEPROM. */
   eeprom_read(startaddr + 2 + codelen, (char *)&datalen, 2);
   
   /* Convert from network byte order to host byte order. */
-  datalen = uip_htons(datalen);
+  datalen = htons(datalen);
 
   if(datalen > 0) {
     /* Read the contents of the data memory into RAM. */
@@ -204,7 +205,7 @@ loader_arch_load(unsigned short startaddr)
     clock_delay(20000);
   }
 
-  leds_off(LEDS_GREEN);
+  leds_green(LEDS_OFF);
   
   /* Execute the loaded program. */
   init = ((void (*)(void *))FLASHADDR);

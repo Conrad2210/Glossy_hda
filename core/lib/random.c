@@ -28,13 +28,13 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * @(#)$Id: random.c,v 1.3 2009/02/11 11:09:59 adamdunkels Exp $
  */
 
 
 #include "lib/random.h"
+#include "lib/rand.h"
 #include "sys/clock.h"
-
-#include <stdlib.h>
 
 /*---------------------------------------------------------------------------*/
 void
@@ -46,9 +46,6 @@ random_init(unsigned short seed)
 unsigned short
 random_rand(void)
 {
-/* In gcc int rand() uses RAND_MAX and long random() uses RANDOM_MAX=0x7FFFFFFF */
-/* RAND_MAX varies depending on the architecture */
-
   return (unsigned short)rand();
 }
 /*---------------------------------------------------------------------------*/

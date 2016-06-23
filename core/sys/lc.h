@@ -30,6 +30,7 @@
  *
  * Author: Adam Dunkels <adam@sics.se>
  *
+ * $Id: lc.h,v 1.1 2006/06/17 22:41:20 adamdunkels Exp $
  */
 
 /**

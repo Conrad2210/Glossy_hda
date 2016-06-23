@@ -28,6 +28,7 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * $Id: uart1.h,v 1.4 2009/01/31 12:46:57 joxe Exp $
  */
 
 /**
@@ -40,7 +41,7 @@
 #ifndef __UART1_H__
 #define __UART1_H__
 
-#include "contiki.h"
+#include "msp430.h"
 
 #define UART1_BAUD2UBR(baud) ((MSP430_CPU_SPEED)/(baud))
 

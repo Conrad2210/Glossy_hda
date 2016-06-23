@@ -28,19 +28,14 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * @(#)$Id: watchdog.c,v 1.8 2010/04/04 12:30:10 adamdunkels Exp $
  */
-
-#include "contiki.h"
+#include <io.h>
+#include <signal.h>
 #include "dev/watchdog.h"
-#include "isr_compat.h"
 
-static int counter = 0;
-
-#define PRINT_STACK_ON_REBOOT 0
-
+static int stopped = 0;
 /*---------------------------------------------------------------------------*/
-#if PRINT_STACK_ON_REBOOT
-#ifdef CONTIKI_TARGET_SKY
 static void
 printchar(char c)
 {
@@ -67,24 +62,25 @@ printstring(char *s)
     printchar(*s++);
   }
 }
-#endif /* CONTIKI_TARGET_SKY */
-#endif /* PRINT_STACK_ON_REBOOT */
 /*---------------------------------------------------------------------------*/
-ISR(WDT, watchdog_interrupt)
+interrupt(WDT_VECTOR)
+watchdog_interrupt(void)
 {
-#ifdef CONTIKI_TARGET_SKY
-#if PRINT_STACK_ON_REBOOT
   uint8_t dummy;
   static uint8_t *ptr;
   static int i;
 
   ptr = &dummy;
+
   printstring("Watchdog reset");
+  /*  printstring("Watchdog reset at PC $");
+  hexprint(ptr[3]);
+  hexprint(ptr[2]);*/
   printstring("\nStack at $");
   hexprint(((int)ptr) >> 8);
   hexprint(((int)ptr) & 0xff);
   printstring(":\n");
-
+  
   for(i = 0; i < 64; ++i) {
     hexprint(ptr[i]);
     printchar(' ');
@@ -93,9 +89,6 @@ ISR(WDT, watchdog_interrupt)
     }
   }
   printchar('\n');
-#endif /* PRINT_STACK_ON_REBOOT */
-#endif /* CONTIKI_TARGET_SKY */
-
   watchdog_reboot();
 }
 /*---------------------------------------------------------------------------*/
@@ -104,15 +97,11 @@ watchdog_init(void)
 {
   /* The MSP430 watchdog is enabled at boot-up, so we stop it during
      initialization. */
-  counter = 0;
+  stopped = 0;
   watchdog_stop();
-#if CONTIKI_TARGET_WISMOTE
-  SFRIFG1 &= ~WDTIFG;
-  SFRIE1 |= WDTIE;
-#else
+
   IFG1 &= ~WDTIFG;
   IE1 |= WDTIE;
-#endif
 }
 /*---------------------------------------------------------------------------*/
 void
@@ -120,8 +109,8 @@ watchdog_start(void)
 {
   /* We setup the watchdog to reset the device after one second,
      unless watchdog_periodic() is called. */
-  counter--;
-  if(counter == 0) {
+  stopped--;
+  if(!stopped) {
     WDTCTL = WDTPW | WDTCNTCL | WDT_ARST_1000 | WDTTMSEL;
   }
 }
@@ -131,18 +120,16 @@ watchdog_periodic(void)
 {
   /* This function is called periodically to restart the watchdog
      timer. */
-  /*  if(counter < 0) {*/
-    WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL | WDTTMSEL;
-    /*  }*/
+  if(!stopped) {
+    WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL | WDTTMSEL;;
+  }
 }
 /*---------------------------------------------------------------------------*/
 void
 watchdog_stop(void)
 {
-  counter++;
-  if(counter == 1) {
-    WDTCTL = WDTPW | WDTHOLD;
-  }
+  WDTCTL = WDTPW | WDTHOLD;
+  stopped++;
 }
 /*---------------------------------------------------------------------------*/
 void

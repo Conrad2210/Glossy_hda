@@ -48,18 +48,17 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * @(#)$Id: rtimer.h,v 1.11 2010/03/23 13:35:00 fros4943 Exp $
  */
 #ifndef __RTIMER_H__
 #define __RTIMER_H__
 
-#include "contiki-conf.h"
+#include "rtimer-arch.h"
 
 #ifndef RTIMER_CLOCK_LT
 typedef unsigned short rtimer_clock_t;
 #define RTIMER_CLOCK_LT(a,b)     ((signed short)((a)-(b)) < 0)
 #endif /* RTIMER_CLOCK_LT */
-
-#include "rtimer-arch.h"
 
 /**
  * \brief      Initialize the real-time scheduler.
@@ -130,6 +129,7 @@ void rtimer_run_next(void);
  * \hideinitializer
  */
 #define RTIMER_NOW() rtimer_arch_now()
+#define RTIMER_NOW_DCO() rtimer_arch_now_dco()
 
 /**
  * \brief      Get the time that a task last was executed

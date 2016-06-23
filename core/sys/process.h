@@ -28,6 +28,7 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * @(#)$Id: process.h,v 1.16 2008/10/14 12:46:39 nvt-se Exp $
  */
 
 /**
@@ -220,7 +221,7 @@ typedef unsigned char process_num_events_t;
  */
 #define PROCESS_PAUSE()             do {				\
   process_post(PROCESS_CURRENT(), PROCESS_EVENT_CONTINUE, NULL);	\
-  PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_CONTINUE);               \
+  PROCESS_WAIT_EVENT();							\
 } while(0)
 
 /** @} end of protothread functions */
@@ -291,35 +292,22 @@ static PT_THREAD(process_thread_##name(struct pt *process_pt,	\
  * This macro declares a process. The process has two names: the
  * variable of the process structure, which is used by the C program,
  * and a human readable string name, which is used when debugging.
- * A configuration option allows removal of the readable name to save RAM.
  *
  * \param name The variable name of the process structure.
  * \param strname The string representation of the process' name.
  *
  * \hideinitializer
  */
-#if PROCESS_CONF_NO_PROCESS_NAMES
-#define PROCESS(name, strname)				\
-  PROCESS_THREAD(name, ev, data);			\
-  struct process name = { NULL,		        \
-                          process_thread_##name }
-#else
 #define PROCESS(name, strname)				\
   PROCESS_THREAD(name, ev, data);			\
   struct process name = { NULL, strname,		\
                           process_thread_##name }
-#endif
 
 /** @} */
 
 struct process {
   struct process *next;
-#if PROCESS_CONF_NO_PROCESS_NAMES
-#define PROCESS_NAME_STRING(process) ""
-#else
   const char *name;
-#define PROCESS_NAME_STRING(process) (process)->name
-#endif
   PT_THREAD((* thread)(struct pt *, process_event_t, process_data_t));
   struct pt pt;
   unsigned char state, needspoll;

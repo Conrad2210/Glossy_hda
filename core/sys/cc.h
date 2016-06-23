@@ -39,6 +39,7 @@
  *
  * This file is part of the Contiki desktop OS
  *
+ * $Id: cc.h,v 1.6 2008/07/02 08:35:29 adamdunkels Exp $
  *
  */
 #ifndef __CC_H__

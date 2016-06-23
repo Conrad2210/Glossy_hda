@@ -28,6 +28,7 @@
  *
  * This file is part of the Contiki operating system.
  *
+ * $Id: ringbuf.c,v 1.1 2009/03/01 20:23:56 adamdunkels Exp $
  */
 
 /**
@@ -37,7 +38,7 @@
  *         Adam Dunkels <adam@sics.se>
  */
 
-#include "lib/ringbuf.h"
+#include "ringbuf.h"
 /*---------------------------------------------------------------------------*/
 void
 ringbuf_init(struct ringbuf *r, uint8_t *dataptr, uint8_t size)
