@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/lib
+END
+ringbuf.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/lib/ringbuf.h
+END
+rand.c
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/lib/rand.c
+END
+random.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/lib/random.h
+END
+rand.h
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/lib/rand.h
+END
+ringbuf.c
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/lib/ringbuf.c
+END
+random.c
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/lib/random.c
+END

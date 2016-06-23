@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky
+END
+motelist-windows.exe
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/motelist-windows.exe
+END
+msp430-bsl-windows.exe
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/msp430-bsl-windows.exe
+END
+motelist-linux
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/motelist-linux
+END
+serialdump-windows.exe
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serialdump-windows.exe
+END
+msp430-bsl-linux
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/msp430-bsl-linux
+END
+serialdump-linux
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serialdump-linux
+END
+serialdump-mac
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serialdump-mac
+END
+serialdump.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serialdump.c
+END

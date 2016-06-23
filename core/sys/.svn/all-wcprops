@@ -1,0 +1,149 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys
+END
+lc-addrlabels.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/lc-addrlabels.h
+END
+clock.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/clock.h
+END
+lc-switch.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/lc-switch.h
+END
+rtimer.c
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/rtimer.c
+END
+lc.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/lc.h
+END
+rtimer.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/rtimer.h
+END
+arg.c
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/arg.c
+END
+pt-sem.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/pt-sem.h
+END
+loader.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/loader.h
+END
+energest.c
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/energest.c
+END
+process.c
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/process.c
+END
+arg.h
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/arg.h
+END
+timer.c
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/timer.c
+END
+energest.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/energest.h
+END
+process.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/process.h
+END
+etimer.c
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/etimer.c
+END
+timer.h
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/timer.h
+END
+autostart.c
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/autostart.c
+END
+procinit.c
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/procinit.c
+END
+pt.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/pt.h
+END
+etimer.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/etimer.h
+END
+cc.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/cc.h
+END
+autostart.h
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/autostart.h
+END
+procinit.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/core/sys/procinit.h
+END

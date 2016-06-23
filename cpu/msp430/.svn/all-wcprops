@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430
+END
+msp430def.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/msp430def.h
+END
+clock.c
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/clock.c
+END
+msp430.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/msp430.h
+END
+spi.c
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/spi.c
+END
+rtimer-arch.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/rtimer-arch.c
+END
+watchdog.c
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/watchdog.c
+END
+Makefile.msp430
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/Makefile.msp430
+END
+loader-arch.c
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/loader-arch.c
+END
+leds-arch.c
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/leds-arch.c
+END
+rtimer-arch.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/rtimer-arch.h
+END
+msp430.c
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/cpu/msp430/msp430.c
+END

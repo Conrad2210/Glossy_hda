@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial
+END
+serialposix.pyc
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/serialposix.pyc
+END
+serialutil.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/serialutil.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/__init__.py
+END
+serialutil.pyc
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/serialutil.pyc
+END
+serialjava.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/serialjava.py
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/Makefile.am
+END
+__init__.pyc
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/__init__.pyc
+END
+serialposix.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/serialposix.py
+END
+serialwin32.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/contikiprojects/!svn/ver/234/ethz.ch/glossy/tools/sky/serial/serialwin32.py
+END
