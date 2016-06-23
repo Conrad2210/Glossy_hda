@@ -48,10 +48,8 @@
 #ifndef GLOSSY_TEST_H_
 #define GLOSSY_TEST_H_
 
-#include "../../core/dev/glossy.h"
+#include "glossy.h"
 #include "node-id.h"
-
-#define COOJA 0
 
 /**
  * \defgroup glossy-test-settings Application settings

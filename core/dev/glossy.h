@@ -46,7 +46,7 @@
 #include "dev/leds.h"
 #include "dev/spi.h"
 #include <stdio.h>
-#include <signal.h>
+#include <legacymsp430.h>
 #include <stdlib.h>
 
 /**
@@ -58,16 +58,11 @@
  */
 #define GLOSSY_SYNC_WINDOW            64
 /**
- * If the relay counter has this or a higher value, do not use it
- * for synchronization.
- */
-#define MAX_VALID_RELAY_CNT           200
-/**
- * Initiator timeout, in DCO clock ticks.
+ * Initiator timeout, in number of Glossy slots.
  * When the timeout expires, if the initiator has not received any packet
  * after its first transmission it transmits again.
  */
-#define GLOSSY_INITIATOR_TIMEOUT      (3 * T_slot_h)
+#define GLOSSY_INITIATOR_TIMEOUT      3
 
 /**
  * Ratio between the frequencies of the DCO and the low-frequency clocks
@@ -78,7 +73,8 @@
 #define CLOCK_PHI                     (F_CPU / RTIMER_SECOND)
 #endif /* COOJA */
 
-#define GLOSSY_HEADER                 0xfe
+#define GLOSSY_HEADER                 0xa0
+#define GLOSSY_HEADER_MASK            0xf0
 #define GLOSSY_HEADER_LEN             sizeof(uint8_t)
 #define GLOSSY_RELAY_CNT_LEN          sizeof(uint8_t)
 #define GLOSSY_IS_ON()                (get_state() != GLOSSY_STATE_OFF)
@@ -89,9 +85,9 @@
 #define GLOSSY_LEN_FIELD              packet[0]
 #define GLOSSY_HEADER_FIELD           packet[1]
 #define GLOSSY_DATA_FIELD             packet[2]
-#define GLOSSY_RELAY_CNT_FIELD        packet[packet_len - FOOTER_LEN]
-#define GLOSSY_RSSI_FIELD             packet[packet_len - 1]
-#define GLOSSY_CRC_FIELD              packet[packet_len]
+#define GLOSSY_RELAY_CNT_FIELD        packet[packet_len_tmp - FOOTER_LEN]
+#define GLOSSY_RSSI_FIELD             packet[packet_len_tmp - 1]
+#define GLOSSY_CRC_FIELD              packet[packet_len_tmp]
 
 enum {
 	GLOSSY_INITIATOR = 1, GLOSSY_RECEIVER = 0
@@ -147,9 +143,18 @@ PROCESS_NAME(glossy_process);
  * \param sync_      Not zero if Glossy must provide time synchronization,
  *                   zero otherwise.
  * \param tx_max_    Maximum number of transmissions (N).
+ * \param header_    Application-specific header (value between 0x0 and 0xf).
+ * \param t_stop_    Time instant at which Glossy must stop, in case it is
+ *                   still running.
+ * \param cb_        Callback function, called when Glossy terminates its
+ *                   execution.
+ * \param rtimer_    First argument of the callback function.
+ * \param ptr_       Second argument of the callback function.
  */
 void glossy_start(uint8_t *data_, uint8_t data_len_, uint8_t initiator_,
-		uint8_t sync_, uint8_t tx_max_);
+		uint8_t sync_, uint8_t tx_max_, uint8_t header_,
+		rtimer_clock_t t_stop_, rtimer_callback_t cb_,
+		struct rtimer *rtimer_, void *ptr_);
 
 /**
  * \brief            Stop Glossy and resume all other application tasks.

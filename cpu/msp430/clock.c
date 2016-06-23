@@ -32,8 +32,7 @@
  */
 
 
-#include <io.h>
-#include <signal.h>
+#include <legacymsp430.h>
 
 #include "contiki-conf.h"
 

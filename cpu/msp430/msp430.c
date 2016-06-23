@@ -30,10 +30,9 @@
  *
  * @(#)$Id: msp430.c,v 1.13 2010/03/21 10:40:15 nifi Exp $
  */
-#include <io.h>
-#include <signal.h>
-#include <sys/unistd.h>
-#include "msp430.h"
+#include <legacymsp430.h>
+#include <stdint.h>
+#include "msp430contiki.h"
 #include "msp430def.h"
 #include "dev/watchdog.h"
 

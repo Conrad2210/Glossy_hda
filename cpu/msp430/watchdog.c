@@ -30,8 +30,8 @@
  *
  * @(#)$Id: watchdog.c,v 1.8 2010/04/04 12:30:10 adamdunkels Exp $
  */
-#include <io.h>
-#include <signal.h>
+#include <legacymsp430.h>
+#include <stdint.h>
 #include "dev/watchdog.h"
 
 static int stopped = 0;

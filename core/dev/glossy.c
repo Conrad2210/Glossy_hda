@@ -39,14 +39,22 @@
 
 #include "glossy.h"
 
+#define CM_POS              CM_1
+#define CM_NEG              CM_2
+#define CM_BOTH             CM_3
+
 static uint8_t initiator, sync, rx_cnt, tx_cnt, tx_max;
 static uint8_t *data, *packet;
-static uint8_t data_len, packet_len;
-static uint8_t bytes_read, tx_relay_cnt_last;
+static uint8_t data_len, packet_len, packet_len_tmp, header;
+static uint8_t bytes_read, tx_relay_cnt_last, n_timeouts;
 static volatile uint8_t state;
-static rtimer_clock_t t_rx_start, t_rx_stop, t_tx_start, t_tx_stop;
+static rtimer_clock_t t_rx_start, t_rx_stop, t_tx_start, t_tx_stop, t_start;
 static rtimer_clock_t t_rx_timeout;
 static rtimer_clock_t T_irq;
+static rtimer_clock_t t_stop;
+static rtimer_callback_t cb;
+static struct rtimer *rtimer;
+static void *ptr;
 static unsigned short ie1, ie2, p1ie, p2ie, tbiv;
 
 static rtimer_clock_t T_slot_h, T_rx_h, T_w_rt_h, T_tx_h, T_w_tr_h, t_ref_l, T_offset_h, t_first_rx_l;
@@ -117,15 +125,19 @@ static inline void radio_start_tx(void) {
 }
 
 static inline void radio_write_tx(void) {
-	FASTSPI_WRITE_FIFO(packet, packet_len - 1);
+	FASTSPI_WRITE_FIFO(packet, packet_len_tmp - 1);
 }
 
 /* --------------------------- SFD interrupt ------------------------ */
-interrupt(TIMERB1_VECTOR)
+interrupt(TIMERB1_VECTOR) __attribute__ ((section(".glossy")))
 timerb1_interrupt(void)
 {
+	// NOTE: if you modify the code if this function
+	// you may need to change the constant part of the interrupt delay (currently 21 DCO ticks),
+	// due to possible different compiler optimizations
+
 	// compute the variable part of the delay with which the interrupt has been served
-	T_irq = ((RTIMER_NOW_DCO() - TBCCR1) - 24) << 1;
+	T_irq = ((RTIMER_NOW_DCO() - TBCCR1) - 21) << 1;
 
 	if (state == GLOSSY_STATE_RECEIVING && !SFD_IS_1) {
 		// packet reception has finished
@@ -179,18 +191,18 @@ timerb1_interrupt(void)
 						// packet reception has been aborted
 						state = GLOSSY_STATE_WAITING;
 					} else {
-						if ((state == GLOSSY_STATE_WAITING) && (tbiv == TBIV_CCR4)) {
+						if ((state == GLOSSY_STATE_WAITING) && (tbiv == TBIV_TBCCR4)) {
 							// initiator timeout
+							n_timeouts++;
 							if (rx_cnt == 0) {
 								// no packets received so far: send the packet again
 								tx_cnt = 0;
 								// set the packet length field to the appropriate value
-								GLOSSY_LEN_FIELD = packet_len;
+								GLOSSY_LEN_FIELD = packet_len_tmp;
 								// set the header field
-								GLOSSY_HEADER_FIELD = GLOSSY_HEADER;
+								GLOSSY_HEADER_FIELD = GLOSSY_HEADER | (header & ~GLOSSY_HEADER_MASK);
 								if (sync) {
-									// do not use this packet for synchronization
-									GLOSSY_RELAY_CNT_FIELD = MAX_VALID_RELAY_CNT;
+									GLOSSY_RELAY_CNT_FIELD = n_timeouts * GLOSSY_INITIATOR_TIMEOUT;
 								}
 								// copy the application data to the data field
 								memcpy(&GLOSSY_DATA_FIELD, data, data_len);
@@ -207,7 +219,7 @@ timerb1_interrupt(void)
 								glossy_stop_initiator_timeout();
 							}
 						} else {
-							if (tbiv == TBIV_CCR5) {
+							if (tbiv == TBIV_TBCCR5) {
 								// rx timeout
 								if (state == GLOSSY_STATE_RECEIVING) {
 									// we are still trying to receive a packet: abort the reception
@@ -238,11 +250,22 @@ PROCESS(glossy_process, "Glossy busy-waiting process");
 PROCESS_THREAD(glossy_process, ev, data) {
 	PROCESS_BEGIN();
 
+	do {
+		packet = (uint8_t *) malloc(128);
+	} while (packet == NULL);
+
 	while (1) {
 		PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_POLL);
 		// prevent the Contiki main cycle to enter the LPM mode or
 		// any other process to run while Glossy is running
-		while (GLOSSY_IS_ON());
+		while (GLOSSY_IS_ON() && RTIMER_CLOCK_LT(RTIMER_NOW(), t_stop));
+#if COOJA
+		while (state == GLOSSY_STATE_TRANSMITTING);
+#endif /* COOJA */
+		// Glossy finished: execute the callback function
+		dint();
+		cb(rtimer, ptr);
+		eint();
 	}
 
 	PROCESS_END();
@@ -308,29 +331,41 @@ static inline void glossy_enable_other_interrupts(void) {
 
 /* --------------------------- Main interface ----------------------- */
 void glossy_start(uint8_t *data_, uint8_t data_len_, uint8_t initiator_,
-		uint8_t sync_, uint8_t tx_max_) {
+		uint8_t sync_, uint8_t tx_max_, uint8_t header_,
+		rtimer_clock_t t_stop_, rtimer_callback_t cb_,
+		struct rtimer *rtimer_, void *ptr_) {
 	// copy function arguments to the respective Glossy variables
 	data = data_;
 	data_len = data_len_;
 	initiator = initiator_;
 	sync = sync_;
 	tx_max = tx_max_;
+	header = header_;
+	t_stop = t_stop_;
+	cb = cb_;
+	rtimer = rtimer_;
+	ptr = ptr_;
 	// disable all interrupts that may interfere with Glossy
 	glossy_disable_other_interrupts();
 	// initialize Glossy variables
 	tx_cnt = 0;
 	rx_cnt = 0;
 
+	t_start = RTIMER_NOW_DCO();
 	// set Glossy packet length, with or without relay counter depending on the sync flag value
-	packet_len = (sync) ?
-			data_len + FOOTER_LEN + GLOSSY_RELAY_CNT_LEN + GLOSSY_HEADER_LEN :
-			data_len + FOOTER_LEN + GLOSSY_HEADER_LEN;
-	// allocate memory for the temporary buffer
-	packet = (uint8_t *) malloc(packet_len + 1);
-	// set the packet length field to the appropriate value
-	GLOSSY_LEN_FIELD = packet_len;
-	// set the header field
-	GLOSSY_HEADER_FIELD = GLOSSY_HEADER;
+	if (data_len) {
+		packet_len_tmp = (sync) ?
+				data_len + FOOTER_LEN + GLOSSY_RELAY_CNT_LEN + GLOSSY_HEADER_LEN :
+				data_len + FOOTER_LEN + GLOSSY_HEADER_LEN;
+		packet_len = packet_len_tmp;
+		// set the packet length field to the appropriate value
+		GLOSSY_LEN_FIELD = packet_len_tmp;
+		// set the header field
+		GLOSSY_HEADER_FIELD = GLOSSY_HEADER | (header & ~GLOSSY_HEADER_MASK);
+	} else {
+		// packet length not known yet (only for receivers)
+		packet_len = 0;
+	}
 	if (initiator) {
 		// initiator: copy the application data to the data field
 		memcpy(&GLOSSY_DATA_FIELD, data, data_len);
@@ -361,7 +396,10 @@ void glossy_start(uint8_t *data_, uint8_t data_len_, uint8_t initiator_,
 		// start the first transmission
 		radio_start_tx();
 		// schedule the initiator timeout
-		glossy_schedule_initiator_timeout();
+		if ((!sync) || T_slot_h) {
+			n_timeouts = 0;
+			glossy_schedule_initiator_timeout();
+		}
 	} else {
 		// turn on the radio
 		radio_on();
@@ -383,8 +421,6 @@ uint8_t glossy_stop(void) {
 	state = GLOSSY_STATE_OFF;
 	// re-enable non Glossy-related interrupts
 	glossy_enable_other_interrupts();
-	// deallocate memory for the temporary buffer
-	free(packet);
 	// return the number of times the packet has been received
 	return rx_cnt;
 }
@@ -433,7 +469,7 @@ static inline void estimate_slot_length(rtimer_clock_t t_rx_stop_tmp) {
 		T_tx_h = t_tx_stop - t_tx_start;
 		T_w_tr_h = t_rx_start - t_tx_stop;
 		T_rx_h = t_rx_stop_tmp - t_rx_start;
-		rtimer_clock_t T_slot_h_tmp = (T_tx_h + T_w_tr_h + T_rx_h + T_w_rt_h) / 2;
+		rtimer_clock_t T_slot_h_tmp = (T_tx_h + T_w_tr_h + T_rx_h + T_w_rt_h) / 2 - (packet_len * F_CPU) / 31250;
 #if GLOSSY_SYNC_WINDOW
 		T_slot_h_sum += T_slot_h_tmp;
 		if ((++win_cnt) == GLOSSY_SYNC_WINDOW) {
@@ -464,14 +500,13 @@ static inline void compute_sync_reference_time(void) {
 	CAPTURE_NEXT_CLOCK_TICK(t_cap_h, t_cap_l);
 #endif /* COOJA */
 	rtimer_clock_t T_rx_to_cap_h = t_cap_h - t_rx_start;
-	unsigned long T_ref_to_rx_h = (GLOSSY_RELAY_CNT_FIELD - 1) * (unsigned long)T_slot_h;
+	unsigned long T_ref_to_rx_h = (GLOSSY_RELAY_CNT_FIELD - 1) * ((unsigned long)T_slot_h + (packet_len * F_CPU) / 31250);
 	unsigned long T_ref_to_cap_h = T_ref_to_rx_h + (unsigned long)T_rx_to_cap_h;
 	rtimer_clock_t T_ref_to_cap_l = 1 + T_ref_to_cap_h / CLOCK_PHI;
 	// high-resolution offset of the reference time
 	T_offset_h = (CLOCK_PHI - 1) - (T_ref_to_cap_h % CLOCK_PHI);
 	// low-resolution value of the reference time
 	t_ref_l = t_cap_l - T_ref_to_cap_l;
-	relay_cnt = GLOSSY_RELAY_CNT_FIELD - 1;
 	// the reference time has been updated
 	t_ref_l_updated = 1;
 }
@@ -480,13 +515,15 @@ static inline void compute_sync_reference_time(void) {
 inline void glossy_begin_rx(void) {
 	t_rx_start = TBCCR1;
 	state = GLOSSY_STATE_RECEIVING;
-	// Rx timeout: packet duration + 200 us
-	// (packet duration: 32 us * packet_length, 1 DCO tick ~ 0.23 us)
-	t_rx_timeout = t_rx_start + ((rtimer_clock_t)packet_len * 35 + 200) * 4;
+	if (packet_len) {
+		// Rx timeout: packet duration + 200 us
+		// (packet duration: 32 us * packet_length, 1 DCO tick ~ 0.23 us)
+		t_rx_timeout = t_rx_start + ((rtimer_clock_t)packet_len_tmp * 35 + 200) * 4;
+	}
 
 	// wait until the FIFO pin is 1 (i.e., until the first byte is received)
 	while (!FIFO_IS_1) {
-		if (!RTIMER_CLOCK_LT(RTIMER_NOW_DCO(), t_rx_timeout)) {
+		if (packet_len && !RTIMER_CLOCK_LT(RTIMER_NOW_DCO(), t_rx_timeout)) {
 			radio_abort_rx();
 #if GLOSSY_DEBUG
 			rx_timeout++;
@@ -497,7 +534,8 @@ inline void glossy_begin_rx(void) {
 	// read the first byte (i.e., the len field) from the RXFIFO
 	FASTSPI_READ_FIFO_BYTE(GLOSSY_LEN_FIELD);
 	// keep receiving only if it has the right length
-	if (GLOSSY_LEN_FIELD != packet_len) {
+	if ((packet_len && (GLOSSY_LEN_FIELD != packet_len_tmp))
+			|| (GLOSSY_LEN_FIELD < FOOTER_LEN) || (GLOSSY_LEN_FIELD > 127)) {
 		// packet with a wrong length: abort packet reception
 		radio_abort_rx();
 #if GLOSSY_DEBUG
@@ -506,6 +544,10 @@ inline void glossy_begin_rx(void) {
 		return;
 	}
 	bytes_read = 1;
+	if (!packet_len) {
+		packet_len_tmp = GLOSSY_LEN_FIELD;
+		t_rx_timeout = t_rx_start + ((rtimer_clock_t)packet_len_tmp * 35 + 200) * 4;
+	}
 
 #if !COOJA
 	// wait until the FIFO pin is 1 (i.e., until the second byte is received)
@@ -521,7 +563,7 @@ inline void glossy_begin_rx(void) {
 	// read the second byte (i.e., the header field) from the RXFIFO
 	FASTSPI_READ_FIFO_BYTE(GLOSSY_HEADER_FIELD);
 	// keep receiving only if it has the right header
-	if (GLOSSY_HEADER_FIELD != GLOSSY_HEADER) {
+	if ((GLOSSY_HEADER_FIELD & GLOSSY_HEADER_MASK) != GLOSSY_HEADER) {
 		// packet with a wrong header: abort packet reception
 		radio_abort_rx();
 #if GLOSSY_DEBUG
@@ -530,9 +572,9 @@ inline void glossy_begin_rx(void) {
 		return;
 	}
 	bytes_read = 2;
-	if (packet_len > 8) {
+	if (packet_len_tmp > 8) {
 		// if packet is longer than 8 bytes, read all bytes but the last 8
-		while (bytes_read <= packet_len - 8) {
+		while (bytes_read <= packet_len_tmp - 8) {
 			// wait until the FIFO pin is 1 (until one more byte is received)
 			while (!FIFO_IS_1) {
 				if (!RTIMER_CLOCK_LT(RTIMER_NOW_DCO(), t_rx_timeout)) {
@@ -555,13 +597,14 @@ inline void glossy_begin_rx(void) {
 inline void glossy_end_rx(void) {
 	rtimer_clock_t t_rx_stop_tmp = TBCCR1;
 	// read the remaining bytes from the RXFIFO
-	FASTSPI_READ_FIFO_NO_WAIT(&packet[bytes_read], packet_len - bytes_read + 1);
-	bytes_read = packet_len + 1;
+	FASTSPI_READ_FIFO_NO_WAIT(&packet[bytes_read], packet_len_tmp - bytes_read + 1);
+	bytes_read = packet_len_tmp + 1;
 #if COOJA
-	if ((GLOSSY_CRC_FIELD & FOOTER1_CRC_OK) && (GLOSSY_HEADER_FIELD == GLOSSY_HEADER)) {
+	if ((GLOSSY_CRC_FIELD & FOOTER1_CRC_OK) && ((GLOSSY_HEADER_FIELD & GLOSSY_HEADER_MASK) == GLOSSY_HEADER)) {
 #else
 	if (GLOSSY_CRC_FIELD & FOOTER1_CRC_OK) {
 #endif /* COOJA */
+		header = GLOSSY_HEADER_FIELD & ~GLOSSY_HEADER_MASK;
 		// packet correctly received
 		if (sync) {
 			// increment relay_cnt field
@@ -577,17 +620,27 @@ inline void glossy_end_rx(void) {
 			state = GLOSSY_STATE_RECEIVED;
 		}
 		if (rx_cnt == 0) {
-			// first successful reception: store current time
+			// first successful reception:
+			// store current time and received relay counter
 			t_first_rx_l = RTIMER_NOW();
+			if (sync) {
+				relay_cnt = GLOSSY_RELAY_CNT_FIELD - 1;
+			}
 		}
 		rx_cnt++;
-		if (sync && (GLOSSY_RELAY_CNT_FIELD < MAX_VALID_RELAY_CNT)) {
+		if (sync) {
 			estimate_slot_length(t_rx_stop_tmp);
 		}
 		t_rx_stop = t_rx_stop_tmp;
 		if (initiator) {
 			// a packet has been successfully received: stop the initiator timeout
 			glossy_stop_initiator_timeout();
+		}
+		if (!packet_len) {
+			packet_len = packet_len_tmp;
+			data_len = (sync) ?
+					packet_len_tmp - FOOTER_LEN - GLOSSY_RELAY_CNT_LEN - GLOSSY_HEADER_LEN :
+					packet_len_tmp - FOOTER_LEN - GLOSSY_HEADER_LEN;
 		}
 	} else {
 #if GLOSSY_DEBUG
@@ -607,8 +660,7 @@ inline void glossy_begin_tx(void) {
 		// copy the application data from the data field
 		memcpy(data, &GLOSSY_DATA_FIELD, data_len);
 	}
-	if ((sync) && (T_slot_h) && (!t_ref_l_updated) && (rx_cnt) &&
-			(GLOSSY_RELAY_CNT_FIELD < MAX_VALID_RELAY_CNT)) {
+	if ((sync) && (T_slot_h) && (!t_ref_l_updated) && (rx_cnt)) {
 		// compute the reference time after the first reception (higher accuracy)
 		compute_sync_reference_time();
 	}
@@ -618,8 +670,8 @@ inline void glossy_end_tx(void) {
 	ENERGEST_OFF(ENERGEST_TYPE_TRANSMIT);
 	ENERGEST_ON(ENERGEST_TYPE_LISTEN);
 	t_tx_stop = TBCCR1;
-	// stop Glossy if tx_cnt reached tx_max (and tx_max > 1 at the initiator, if sync is enabled)
-	if ((++tx_cnt == tx_max) && ((!sync) || ((tx_max - initiator) > 0))) {
+	// stop Glossy if tx_cnt reached tx_max (and tx_max > 1 at the initiator)
+	if ((++tx_cnt == tx_max) && ((tx_max - initiator) > 0)) {
 		radio_off();
 		state = GLOSSY_STATE_OFF;
 	} else {
@@ -639,8 +691,15 @@ inline void glossy_stop_rx_timeout(void) {
 }
 
 inline void glossy_schedule_initiator_timeout(void) {
-	TBCCR4 = RTIMER_NOW_DCO() + GLOSSY_INITIATOR_TIMEOUT;
+#if !COOJA
+	if (sync) {
+		TBCCR4 = t_start + (n_timeouts + 1) * GLOSSY_INITIATOR_TIMEOUT * ((unsigned long)T_slot_h + (packet_len * F_CPU) / 31250);
+	} else {
+		TBCCR4 = t_start + (n_timeouts + 1) * GLOSSY_INITIATOR_TIMEOUT *
+				((rtimer_clock_t)packet_len * 35 + 400) * 4;
+	}
 	TBCCTL4 = CCIE;
+#endif
 }
 
 inline void glossy_stop_initiator_timeout(void) {

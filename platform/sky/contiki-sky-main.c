@@ -29,7 +29,7 @@
  * @(#)$Id: contiki-sky-main.c,v 1.78 2010/03/19 14:08:15 joxe Exp $
  */
 
-#include <signal.h>
+#include <legacymsp430.h>
 #include <stdio.h>
 #include <string.h>
 

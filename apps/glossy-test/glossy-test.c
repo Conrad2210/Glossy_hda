@@ -93,7 +93,6 @@
  */
 
 #include "glossy-test.h"
-#include "../../core/dev/glossy.c"
 
 /**
  * \defgroup glossy-test-variables Application variables
@@ -146,9 +145,6 @@ static unsigned long sum_latency = 0;      /**< \brief Current sum of latencies,
  */
 
 PROCESS(glossy_print_stats_process, "Glossy print stats");
-PROCESS(glossy_test, "Glossy test");
-AUTOSTART_PROCESSES(&glossy_test);
-
 PROCESS_THREAD(glossy_print_stats_process, ev, data)
 {
 	PROCESS_BEGIN();
@@ -373,7 +369,8 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
  * @{
  */
 
-
+PROCESS(glossy_test, "Glossy test");
+AUTOSTART_PROCESSES(&glossy_test);
 PROCESS_THREAD(glossy_test, ev, data)
 {
 	PROCESS_BEGIN();

@@ -33,7 +33,7 @@
  * \file
  *         Device driver for the ST M25P80 40MHz 1Mbyte external memory.
  * \author
- *         Björn Grönvall <bg@sics.se>
+ *         Bjorn Gronvall <bg@sics.se>
  *
  *         Data is written bit inverted (~-operator) to flash so that
  *         unwritten data will read as zeros (UNIX style).
@@ -42,8 +42,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <io.h>
-#include <signal.h>
+#include <legacymsp430.h>
 
 #include "contiki.h"
 
