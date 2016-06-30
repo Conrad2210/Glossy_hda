@@ -48,12 +48,9 @@
 #ifndef GLOSSY_TEST_H_
 #define GLOSSY_TEST_H_
 
-
-#include "contiki.h"
 #include "glossy.h"
-//#include "node-id.h"
-//#include "packetqueue.h"
-//#include "ringbuf.h"
+#include "node-id.h"
+#include "glossy_queue.h"
 
 /**
  * \defgroup glossy-test-settings Application settings
@@ -170,18 +167,15 @@ typedef struct {
  */
 #define GLOSSY_REFERENCE_TIME       (get_t_ref_l())
 
-/** @} */
+#define queue_length 256
+
+//const unsigned long queue_length = (int) 256;
+
+
+
 
 /** @} */
 
-//#define glossy_data_queue       // Queue for the glossy
-
-#define size_glossy 128  //Size of the Queue
-
-
-
-//struct ringbuf;
-//void ringbuf_init( struct ringbuf* glossy_buffer, uint8_t* a, uint8_t );
+/** @} */
 
 #endif /* GLOSSY_TEST_H_ */
-
