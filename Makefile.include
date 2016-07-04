@@ -47,7 +47,7 @@ CFLAGS += -DCONTIKI_TARGET_$(TARGET_UPPERCASE)
 
 SYSTEM  = process.c autostart.c
 THREADS = 
-LIBS    = timer.c etimer.c energest.c rtimer.c ringbuf.c
+LIBS    = timer.c etimer.c energest.c rtimer.c ringbuf.c glossy_queue.c
 DEV     = 
 NET     = 
 

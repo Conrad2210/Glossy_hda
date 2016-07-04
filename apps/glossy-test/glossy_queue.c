@@ -1,87 +1,47 @@
 /*
  * glossy_queue.c
  *
- *  Created on: 27-Jun-2016
- *      Author: NithinTomy
+ *  Created on: Jun 16, 2016
+ *      Author: user
  */
 
-#include"glossy_queue.h"
 
-glossy_Queue * createQueue(int maxElements)
+#include "glossy_queue.h"
+
+struct queueCDT *queueADT;
+
+void QueueInit()
 {
-	/* Create a Queue */
-	        glossy_Queue *Q;
-	        Q = (glossy_Queue *)malloc(sizeof(glossy_Queue));
-	        /* Initialise its properties */
-	        Q->glossy_data = (unsigned long *)malloc(sizeof(int)*maxElements);
-	        Q->size = 0;
-	        Q->capacity = maxElements;
-	        Q->front = 0;
-	        Q->rear = -1;
-	        /* Return the pointer */
-	        return Q;
-
-
+  int i = 0;
+  queueADT->front = -1;
+  queueADT->rear = -1;
+  for(i=0;i<MAX_QUEUE_SIZE;i++)
+    queueADT->glossy_data[i].seq_no = 0;
 }
-void Dequeue(glossy_Queue *Q)
-{
 
+ void Enqueue(glossy_data_struct data){
+   queueADT->rear = (queueADT->rear+1)%MAX_QUEUE_SIZE;
+   queueADT->glossy_data[queueADT->rear] = data;
+ }
 
-    /* If Queue size is zero then it is empty. So we cannot pop */
-    if(Q->size==0)
-    {
-            printf("Queue is Empty\n");
-            return;
-    }
-    /* Removing an element is equivalent to incrementing index of front by one */
+ void Dequeue(){
+   queueADT->rear = -1;
+ }
+
+ bool IsEmpty(){
+   if ((queueADT->rear == -1) && (queueADT->front == -1))
+     return true;
+   else
+     return false;
+ }
+
+ bool IsFull(){
+   if (queueADT->rear == MAX_QUEUE_SIZE-1)
+      return true;
     else
-    {
-            Q->size--;
-            Q->front++;
-            /* As we fill elements in circular fashion */
-            if(Q->front==Q->capacity)
-            {
-                    Q->front=0;
-            }
-    }
-    return;
-}
+      return false;
+ }
 
-unsigned long front(glossy_Queue *Q)
-{
-
-	 if(Q->size==0)
-	        {
-	                printf("Queue is Empty\n");
-	                exit(0);
-	        }
-	        /* Return the element which is at the front*/
-	        return Q->glossy_data[Q->front];
-
-}
-
-void Enqueue(glossy_Queue *Q,unsigned long glossy_data)
-{
-	 /* If the Queue is full, we cannot push an element into it as there is no space for it.*/
-	        if(Q->size == Q->capacity)
-	        {
-	                printf("Queue is Full\n");
-	        }
-	        else
-	        {
-	                Q->size++;
-	                Q->rear = Q->rear + 1;
-	                /* As we fill the queue in circular fashion */
-	                if(Q->rear == Q->capacity)
-	                {
-	                        Q->rear = 0;
-	                }
-	                /* Insert the element in its rear side */
-	                Q->glossy_data[Q->rear] = glossy_data;
-	        }
-	        return;
-
-
-}
-
-
+ glossy_data_struct getGlossyData(){
+   return queueADT->glossy_data[++queueADT->front%MAX_QUEUE_SIZE];
+ }

@@ -49,10 +49,13 @@
 #include <legacymsp430.h>
 #include <stdlib.h>
 
+
+#define COOJA 0
+
 /**
  * If not zero, nodes print additional debug information (disabled by default).
  */
-#define GLOSSY_DEBUG 0
+#define GLOSSY_DEBUG 1
 /**
  * Size of the window used to average estimations of slot lengths.
  */

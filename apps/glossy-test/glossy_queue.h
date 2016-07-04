@@ -1,39 +1,36 @@
 /*
  * glossy_queue.h
  *
- *  Created on: 27-Jun-2016
- *      Author: NithinTomy
+ *  Created on: Jun 16, 2016
+ *      Author: Nithin Raj
  */
 
 #ifndef GLOSSY_QUEUE_H_
 #define GLOSSY_QUEUE_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define MAX_QUEUE_SIZE  40
+
+typedef struct {
+  unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
+} glossy_data_struct;
+
+typedef struct queueCDT {
+  glossy_data_struct glossy_data [MAX_QUEUE_SIZE];
+  int front;
+  int rear;
+  int count;
+
+ } queueCDT;
 
 
-#include<stdio.h>
-#include<stdlib.h>
-
-typedef struct glossy_Queue
-{
-        int capacity;
-        int size;
-        int front;
-        int rear;
-        unsigned long *glossy_data;
-}glossy_Queue;
-
-
-glossy_Queue * createQueue(int maxElements);
-
-void Dequeue(glossy_Queue *Q);
-
-unsigned long front(glossy_Queue *Q);
-
-void Enqueue(glossy_Queue *Q,unsigned long glossy_data);
-
-
-
-
-
+void QueueInit();
+void Enqueue(glossy_data_struct data);
+void Dequeue();
+bool IsEmpty();
+bool IsFull();
+glossy_data_struct getGlossyData();
 #endif /* GLOSSY_QUEUE_H_ */
-

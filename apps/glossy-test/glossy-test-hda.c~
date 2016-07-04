@@ -120,6 +120,8 @@ static int period_skew = 0;                /**< \brief Current estimation of clo
 
 static rtimer_clock_t t_start_queue = 0;
 
+static glossy_data_struct data;
+
 /** @} */
 
 /**
@@ -133,7 +135,9 @@ static unsigned long latency = 0;          /**< \brief Latency of last Glossy ph
 static unsigned long sum_latency = 0;      /**< \brief Current sum of latencies, in ticks of low-frequency
                                                 clock (used to compute average). */
 
-glossy_Queue *myQueue;
+//glossy_Queue *myQueue;
+
+queueCDT *myQueue;
 
 /** @} */
 /** @} */
@@ -249,18 +253,19 @@ static inline void estimate_period_skew(void) {
 void create_queue(struct rtimer *t, void *ptr)
 {
 	if(IS_INITIATOR())
-	myQueue= createQueue(queue_length);
+	//myQueue= createQueue(queue_length);
+        QueueInit();
 }
 
 
 void packet_queue(struct rtimer *t, void *ptr)
 {
  if  ( IS_INITIATOR())
-     
-     { 
+
+     {
 	while(1)
 	{
-       	   Enqueue(myQueue,glossy_data.seq_no++);
+       	   Enqueue(data);
 
 	 t_start_queue=RTIMER_TIME(t);
 	 rtimer_set(t, t_start_queue + RTIMER_SECOND / 5, 1, (rtimer_callback_t)packet_queue, ptr);
@@ -283,7 +288,7 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 		while (1) {
 
 
-                       unsigned long glossy_first = front(myQueue);
+                         data = getGlossyData();
 
 			// Increment sequence number.
 			//glossy_data.seq_no++;
@@ -291,7 +296,7 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 			leds_on(LEDS_GREEN);
 			rtimer_clock_t t_stop = RTIMER_TIME(t) + GLOSSY_DURATION;
 			// Start Glossy.
-			glossy_start((uint8_t *)&glossy_first, DATA_LEN, GLOSSY_INITIATOR, GLOSSY_SYNC, N_TX,
+			glossy_start((uint8_t *)&data, DATA_LEN, GLOSSY_INITIATOR, GLOSSY_SYNC, N_TX,
 					APPLICATION_HEADER, t_stop, (rtimer_callback_t)glossy_scheduler, t, ptr);
 			// Store time at which Glossy has started.
 			t_start = RTIMER_TIME(t);
@@ -303,7 +308,7 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 			// Stop Glossy.
 			glossy_stop();
 
-                        Dequeue(myQueue);
+                        Dequeue();
 
 
 			if (!GLOSSY_IS_BOOTSTRAPPING()) {
@@ -421,7 +426,7 @@ PROCESS_THREAD(glossy_test, ev, data)
 	process_start(&glossy_process, NULL);
 	// Start Glossy experiment in one second.
 	rtimer_set(&rt, RTIMER_NOW() + RTIMER_SECOND, 1, (rtimer_callback_t)create_queue, NULL);
-	rtimer_set(&rt, RTIMER_NOW() + RTIMER_SECOND, 1, (rtimer_callback_t)packet_queue, NULL);	
+	rtimer_set(&rt, RTIMER_NOW() + RTIMER_SECOND, 1, (rtimer_callback_t)packet_queue, NULL);
 	rtimer_set(&rt, RTIMER_NOW() + RTIMER_SECOND, 1, (rtimer_callback_t)glossy_scheduler, NULL);
 
 	PROCESS_END();
