@@ -79,7 +79,7 @@
  * \brief Period with which a Glossy phase is scheduled.
  *        Default value: 250 ms.
  */
-#define GLOSSY_PERIOD           (RTIMER_SECOND / 4)      // 250 ms
+#define GLOSSY_PERIOD           (RTIMER_SECOND )      // 1000 ms
 
 /**
  * \brief Duration of each Glossy phase.
@@ -125,9 +125,9 @@
 /**
  * \brief Data structure used to represent flooding data.
  */
-//typedef struct {
-//	unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
-//  } glossy_data_struct; 
+ //typedef struct {
+ //	unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
+ // } glossy_data_struct; 
 
 
 /** @} */

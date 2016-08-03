@@ -135,9 +135,7 @@ static unsigned long latency = 0;          /**< \brief Latency of last Glossy ph
 static unsigned long sum_latency = 0;      /**< \brief Current sum of latencies, in ticks of low-frequency
                                                 clock (used to compute average). */
 
-//glossy_Queue *myQueue;
-unsigned int N=4;
-queueCDT *myQueue;
+queueCDT myQueue;
 
 /** @} */
 /** @} */
@@ -253,28 +251,116 @@ static inline void estimate_period_skew(void) {
 void create_queue(struct rtimer *t, void *ptr)
 {
 	if(IS_INITIATOR())
-	//myQueue= createQueue(queue_length);
-        QueueInit();
+	QueueInit(&myQueue);
 }
-
+unsigned int traffic_period=4;
+unsigned int k =0;
 
 void packet_queue(struct rtimer *t, void *ptr)
 {
+
  if  ( IS_INITIATOR())
+	
+     {  
+	
+		while(1)
+		{	 
+	   
+          data.seq_no++;
+       	  Enqueue(&myQueue,data);
+          t_start_queue=RTIMER_TIME(t);
+         
+		 switch (traffic_period)
+		{
+			case '1' : 
+				if (k==2)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 2, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =2;
+				}
+				else
+				k++;
+				break;
+			case 2: 
+				if (k==4)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 3, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =3;
+				}
+				else 
+				k++;
+				break;
+			case 3:
+				if(k==6)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 4, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =4;
+				}
+				else
+				k++;
+				break;     
+			case 4:
+				if(k==8)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 5, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =5;
+				}
+				else
+				k++;
+				break;
+			case 5:
+				if(k==10)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 6, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =6;
+				}
+				else
+				k++;
+				break;
+			case 6:
+				if(k==12)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 7, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =7;
+				}
+				else
+				k++;
+				break;
+			case 7:
+				if(k==14)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 10, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =8;
+				}
+				else
+				k++;
+				break;
+			case 8:
+				if(k==20)
+				{
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 4, 1, (rtimer_callback_t)packet_queue, ptr);
+					k=0;
+					traffic_period =1;
+				}
+				else
+				k++;
+				break;
 
-     {
-	while(1)
-	{
-		//unsigned int k=0;
-		data.seq_no++;
-       	   Enqueue(data);
-
-	 t_start_queue=RTIMER_TIME(t);
-	// k++;
-	rtimer_set(t, t_start_queue + RTIMER_SECOND / N, 1, (rtimer_callback_t)packet_queue, ptr);
+			default:
+					rtimer_set(t, t_start_queue + RTIMER_SECOND / 4, 1, (rtimer_callback_t)packet_queue, ptr);
+				break;
+         }
+      }
     }
-     }
 }
+
 
 
 
@@ -283,24 +369,44 @@ void packet_queue(struct rtimer *t, void *ptr)
  * \defgroup glossy-test-scheduler Periodic scheduling
  * @{
  */
-
+int count=0;
+int K=4;
 char glossy_scheduler(struct rtimer *t, void *ptr) {
 	PT_BEGIN(&pt);
 
 	if (IS_INITIATOR()) {	// Glossy initiator.
+		
+
 		while (1) {
 
 
-                         data = getGlossyData();
+			data = getGlossyData(&myQueue);
+
+			count= get_count(&myQueue);
+
+			if(count<=10 && count>=0)
+			{
+				K =  2;
+				data.set_period=2;
+			}
+			else if	(count>10 && count <=30)
+			{
+				K= 4;
+				data.set_period=4;
+			}
+			else
+			{
+				K=8;	
+				data.set_period=8;
+			}
 
 			// Increment sequence number.
-			//glossy_data.seq_no++;
 			// Glossy phase.
 			leds_on(LEDS_GREEN);
 			rtimer_clock_t t_stop = RTIMER_TIME(t) + GLOSSY_DURATION;
 			// Start Glossy.
 			glossy_start((uint8_t *)&data, DATA_LEN, GLOSSY_INITIATOR, GLOSSY_SYNC, N_TX,
-					APPLICATION_HEADER, t_stop, (rtimer_callback_t)glossy_scheduler, t, ptr);
+			APPLICATION_HEADER, t_stop, (rtimer_callback_t)glossy_scheduler, t, ptr);
 			// Store time at which Glossy has started.
 			t_start = RTIMER_TIME(t);
 			// Yield the protothread. It will be resumed when Glossy terminates.
@@ -311,19 +417,21 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 			// Stop Glossy.
 			glossy_stop();
 
-                        Dequeue();
+			Dequeue(&myQueue);
 
 
 			if (!GLOSSY_IS_BOOTSTRAPPING()) {
-				// Glossy has already successfully bootstrapped.
-				if (!GLOSSY_IS_SYNCED()) {
-					// The reference time was not updated: increment reference time by GLOSSY_PERIOD.
-					set_t_ref_l(GLOSSY_REFERENCE_TIME + GLOSSY_PERIOD);
-					set_t_ref_l_updated(1);
-				}
+			// Glossy has already successfully bootstrapped.
+			if (!GLOSSY_IS_SYNCED()) {
+			// The reference time was not updated: increment reference time by GLOSSY_PERIOD.
+			set_t_ref_l(GLOSSY_REFERENCE_TIME + GLOSSY_PERIOD);
+			set_t_ref_l_updated(1);
+			}
 			}
 			// Schedule begin of next Glossy phase based on GLOSSY_PERIOD.
-			rtimer_set(t, t_start + GLOSSY_PERIOD, 1, (rtimer_callback_t)glossy_scheduler, ptr);
+
+
+			rtimer_set(t, t_start + (GLOSSY_PERIOD/K), 1, (rtimer_callback_t)glossy_scheduler, ptr);
 			// Estimate the clock skew over the last period.
 			estimate_period_skew();
 			// Poll the process that prints statistics (will be activated later by Contiki).
@@ -332,6 +440,7 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 			PT_YIELD(&pt);
 		}
 	} else {	// Glossy receiver.
+		int L=4;	
 		while (1) {
 			// Glossy phase.
 			leds_on(LEDS_GREEN);
@@ -345,16 +454,36 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 				// Schedule end of Glossy phase based on GLOSSY_DURATION.
 				t_stop = RTIMER_TIME(t) + GLOSSY_DURATION;
 			}
+
 			// Start Glossy.
 			glossy_start((uint8_t *)&glossy_data, DATA_LEN, GLOSSY_RECEIVER, GLOSSY_SYNC, N_TX,
 					APPLICATION_HEADER, t_stop, (rtimer_callback_t)glossy_scheduler, t, ptr);
+			
+			//data1=&glossy_data;
 			// Yield the protothread. It will be resumed when Glossy terminates.
 			PT_YIELD(&pt);
-
 			// Off phase.
 			leds_off(LEDS_GREEN);
 			// Stop Glossy.
 			glossy_stop();
+            
+ 			
+
+
+			if(glossy_data.set_period==2)
+			{
+				L= 2;
+			}
+			else if	(glossy_data.set_period==4)
+			{
+				L=4;
+			}
+			else
+			{
+				L=8;	
+			}	
+
+
 			if (GLOSSY_IS_BOOTSTRAPPING()) {
 				// Glossy is still bootstrapping.
 				if (!GLOSSY_IS_SYNCED()) {
@@ -393,7 +522,7 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 			} else {
 				// Glossy has already successfully bootstrapped:
 				// Schedule begin of next Glossy phase based on reference time and GLOSSY_PERIOD.
-				rtimer_set(t, GLOSSY_REFERENCE_TIME + GLOSSY_PERIOD +
+				rtimer_set(t, GLOSSY_REFERENCE_TIME + (GLOSSY_PERIOD/L) +
 						period_skew - GLOSSY_GUARD_TIME * (1 + sync_missed), 1,
 						(rtimer_callback_t)glossy_scheduler, ptr);
 			}
