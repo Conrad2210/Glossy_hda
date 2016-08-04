@@ -12,25 +12,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_QUEUE_SIZE  60
-
-typedef struct {
-  unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
-  uint8_t set_period;
-} glossy_data_struct;
-
-typedef struct queueCDT {
-  glossy_data_struct glossy_data [MAX_QUEUE_SIZE];
-  int front;
-  int rear;
-  int count;
-
- } queueCDT;
 
 
-void QueueInit(queueCDT* queueADT);
-void Enqueue(queueCDT* queueADT, glossy_data_struct data);
-void Dequeue(queueCDT* queueADT);
-int get_count(queueCDT* queueADT);
-glossy_data_struct getGlossyData(queueCDT* queueADT);
+
 #endif /* GLOSSY_QUEUE_H_ */

@@ -79,7 +79,7 @@
  * \brief Period with which a Glossy phase is scheduled.
  *        Default value: 250 ms.
  */
-#define GLOSSY_PERIOD           (RTIMER_SECOND )      // 1000 ms
+#define GLOSSY_PERIOD           (RTIMER_SECOND * 0.5 )      // 500 ms
 
 /**
  * \brief Duration of each Glossy phase.
