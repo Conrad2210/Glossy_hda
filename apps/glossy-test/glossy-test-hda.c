@@ -185,7 +185,7 @@ void QueueInit(queueCDT* queueADT)
 
    queueADT->glossy_data[queueADT->rear] = data;
    if(queueADT->count + 1 < MAX_QUEUE_SIZE)
-	   LqueueADT->count++;
+	   queueADT->count++;
 
    if(queueADT->rear + 1 > MAX_QUEUE_SIZE)
 	   queueADT->rear = 0;
