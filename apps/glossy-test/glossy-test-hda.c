@@ -136,7 +136,7 @@ static unsigned long latency = 0; /**< \brief Latency of last Glossy phase, in u
 static unsigned long sum_latency = 0; /**< \brief Current sum of latencies, in ticks of low-frequency
  clock (used to compute average). */
 
-struct queueCDT myQueue;
+queueCDT myQueue;
 
 unsigned int traffic_period = 4;
 unsigned int k = 0;

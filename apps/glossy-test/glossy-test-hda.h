@@ -50,7 +50,6 @@
 
 #include "glossy.h"
 #include "node-id.h"
-#include "glossy_queue.h"
 
 /**
  * \defgroup glossy-test-settings Application settings
@@ -130,6 +129,11 @@
  // } glossy_data_struct; 
 
 
+typedef struct {
+  unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
+  uint8_t set_period;
+  rtimer_clock_t timestamp;
+} glossy_data_struct;
 /** @} */
 
 /**
@@ -171,8 +175,16 @@
 #define queue_length 256
 
 //const unsigned long queue_length = (int) 256;
+#define MAX_QUEUE_SIZE 60
 
 
+typedef struct queueCDT {
+  glossy_data_struct glossy_data [MAX_QUEUE_SIZE];
+  int front;
+  int rear;
+  int count;
+
+} queueCDT;
 
 
 /** @} */
