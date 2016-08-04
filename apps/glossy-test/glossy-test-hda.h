@@ -78,7 +78,7 @@
  * \brief Period with which a Glossy phase is scheduled.
  *        Default value: 250 ms.
  */
-#define GLOSSY_PERIOD           (RTIMER_SECOND * 0.5 )      // 500 ms
+#define GLOSSY_PERIOD           (RTIMER_SECOND / 4)      // 500 ms
 
 /**
  * \brief Duration of each Glossy phase.
@@ -129,11 +129,7 @@
  // } glossy_data_struct; 
 
 
-typedef struct {
-  unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
-  uint8_t set_period;
-  rtimer_clock_t timestamp;
-} glossy_data_struct;
+
 /** @} */
 
 /**
@@ -178,7 +174,7 @@ typedef struct {
 #define MAX_QUEUE_SIZE 60
 
 
-typedef struct queueCDT {
+typedef struct{
   glossy_data_struct glossy_data [MAX_QUEUE_SIZE];
   int front;
   int rear;

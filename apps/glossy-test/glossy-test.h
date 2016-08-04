@@ -124,9 +124,9 @@
 /**
  * \brief Data structure used to represent flooding data.
  */
-typedef struct {
-	unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
-} glossy_data_struct;
+//typedef struct {
+//	unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
+//} glossy_data_struct;
 
 /** @} */
 
