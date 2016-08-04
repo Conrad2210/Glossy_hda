@@ -177,7 +177,7 @@ void QueueInit(queueCDT* queueADT)
   queueADT->rear = 0;
   queueADT->front = 0;
   queueADT->count = 0;
-  for(int i = 0; i < MAX_QUEUE_SIZE; i++)
+  for(i = 0; i < MAX_QUEUE_SIZE; i++)
 	  queueADT->glossy_data[i].seq_no = -1;
 }
 
