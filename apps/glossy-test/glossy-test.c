@@ -252,6 +252,7 @@ char glossy_scheduler(struct rtimer *t, void *ptr) {
 
 	if (IS_INITIATOR()) {	// Glossy initiator.
 		while (1) {
+			printf("[SCHEDULER]: Get Data from queue\n");
 			// Increment sequence number.
 			glossy_data.seq_no++;
 			// Glossy phase.
@@ -382,6 +383,7 @@ PROCESS_THREAD(glossy_test, ev, data)
 	process_start(&glossy_print_stats_process, NULL);
 	// Start Glossy busy-waiting process.
 	process_start(&glossy_process, NULL);
+
 	// Start Glossy experiment in one second.
 	rtimer_set(&rt, RTIMER_NOW() + RTIMER_SECOND, 1, (rtimer_callback_t)glossy_scheduler, NULL);
 

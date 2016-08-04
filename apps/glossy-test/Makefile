@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = glossy-test
+CONTIKI_PROJECT = glossy-test glossy-test-hda
 all: $(CONTIKI_PROJECT)
 
 CONTIKI = ../..

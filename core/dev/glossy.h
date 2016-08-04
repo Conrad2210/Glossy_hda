@@ -117,6 +117,12 @@ unsigned int high_T_irq, rx_timeout, bad_length, bad_header, bad_crc;
 
 PROCESS_NAME(glossy_process);
 
+typedef struct {
+  unsigned long seq_no; /**< Sequence number, incremented by the initiator at each Glossy phase. */
+  uint8_t set_period;
+  rtimer_clock_t timestamp;
+} glossy_data_struct;
+
 /* ----------------------- Application interface -------------------- */
 /**
  * \defgroup glossy_interface Glossy API
@@ -154,7 +160,7 @@ PROCESS_NAME(glossy_process);
  * \param rtimer_    First argument of the callback function.
  * \param ptr_       Second argument of the callback function.
  */
-void glossy_start(uint8_t *data_, uint8_t data_len_, uint8_t initiator_,
+void glossy_start(glossy_data_struct* data_, uint8_t data_len_, uint8_t initiator_,
 		uint8_t sync_, uint8_t tx_max_, uint8_t header_,
 		rtimer_clock_t t_stop_, rtimer_callback_t cb_,
 		struct rtimer *rtimer_, void *ptr_);

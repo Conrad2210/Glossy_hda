@@ -44,7 +44,8 @@
 #define CM_BOTH             CM_3
 
 static uint8_t initiator, sync, rx_cnt, tx_cnt, tx_max;
-static uint8_t *data, *packet;
+static glossy_data_struct *data;
+static uint8_t *packet;
 static uint8_t data_len, packet_len, packet_len_tmp, header;
 static uint8_t bytes_read, tx_relay_cnt_last, n_timeouts;
 static volatile uint8_t state;
@@ -330,7 +331,7 @@ static inline void glossy_enable_other_interrupts(void) {
 }
 
 /* --------------------------- Main interface ----------------------- */
-void glossy_start(uint8_t *data_, uint8_t data_len_, uint8_t initiator_,
+void glossy_start(glossy_data_struct *data_, uint8_t data_len_, uint8_t initiator_,
 		uint8_t sync_, uint8_t tx_max_, uint8_t header_,
 		rtimer_clock_t t_stop_, rtimer_callback_t cb_,
 		struct rtimer *rtimer_, void *ptr_) {
